@@ -12,6 +12,7 @@
 #include <mutex>
 #include <condition_variable>
 
+namespace pr{
 template <typename T>
 class Queue {
 	T ** tab;
@@ -21,7 +22,7 @@ class Queue {
 	mutable std::mutex m;
 	std::condition_variable cv_prod;
 	std::condition_variable cv_cons;
-
+	bool isBlocking = true;
 
 private:
 	bool full() const { return sz==allocsize;}
@@ -37,11 +38,18 @@ public :
 	}
 	T* pop () {
 		std::unique_lock<std::mutex> l(m);
-		while( empty() ){
+		while( empty() && isBlocking){
 			cv_cons.wait(l);
 		}
 
-		if(full())
+		if( empty() ){
+			return  nullptr;
+		}
+
+		if(full()){
+			cv_prod.notify_all();
+		}
+
 		auto ret = tab[begin];
 		tab[begin] = nullptr;
 		sz--;
@@ -50,8 +58,19 @@ public :
 	}
 	void push (T* elt) {
 		std::unique_lock<std::mutex> l(m);
+		while( full() ){
+			cv_prod.wait(l);
+		}
+
+		if(empty()){
+			cv_cons.notify_all();
+		}
+
 		tab[(begin + sz)%allocsize] = elt;
 		sz++;
+	}
+	void setNotBlocking(){
+		isBlocking = false;
 	}
 	~Queue() {
 		for (size_t i = 0; i < sz ; i++) {
@@ -61,5 +80,6 @@ public :
 		delete[] tab;
 	}
 };
+}
 
 #endif /* QUEUE_H_ */
