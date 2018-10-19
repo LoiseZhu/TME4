@@ -10,7 +10,7 @@ const Color Color::black = Color(0,0,0);
 
 std::ostream & operator<<(std::ostream & os, const Color & col) {
 	os << int(col.r) << ' ' << int(col.g) << ' ' << int(col.b) << '\n' ;
-	return  os;
+	return os;
 }
 
 } /* namespace pr */
