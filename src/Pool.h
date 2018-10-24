@@ -21,6 +21,7 @@ class Pool{
 	std::vector<std::thread> threadTab;
 
 public:
+
 	Pool(size_t taille){
 		jobQueue = pr::Queue(taille);
 		threadTab = std::vector();
