@@ -18,6 +18,7 @@
 namespace pr{
 
 class Pool{
+
 	pr::Queue<Job> jobQueue;
 	std::vector<std::thread> threadTab;
 
