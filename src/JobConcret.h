@@ -12,6 +12,7 @@
 #include <iostream>
 #include <thread>
 
+namespace pr{
 class JobConcret:public Job{
 	int * result;
 	int argument;
@@ -22,15 +23,13 @@ public:
 	~JobConcret(){
 	}
 	void run(){
-		std::cout<<"début sur args = " << argument<<std::endl;
+		std::cout<<"début sur args = "<<argument<<std::endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		result = &(argument%256);
-		std::cout<<"fini sur arg " << argument << " res vaut "<<*result << std::endl;
+		*result = argument%256;
+		std::cout<<"fini sur arg = " << argument << " res vaut "<<(*result)<< std::endl;
 	}
-
-
-
 };
+}
 
 
 

@@ -14,13 +14,14 @@
 
 #include "JobConcret.h"
 #include "Queue.h"
+#include "Job.h"
 
 namespace pr{
 
 class Pool{
-
 	pr::Queue<Job> jobQueue;
 	std::vector<std::thread> threadTab;
+	bool endMain=true;
 
 public:
 	Pool(size_t taille){
@@ -28,6 +29,24 @@ public:
 		threadTab = std::vector();
 	}
 	~Pool(){
+	}
+	void start(int NBTHREAD){
+		threadTab.reserve(NBTHREAD);
+		while(endMain){
+			for(int i=0; i<NBTHREAD; i++){
+				threadTab[i] = std::thread(jobQueue.pop()->run());
+			}
+		}
+		jobQueue.setBlockingPop(false);
+		for(int i=0; i<NBTHREAD;i++){
+			threadTab[i].join();
+		}
+	}
+	void submit(Job *job){
+		jobQueue.push(job);
+	}
+	void stop(){
+		endMain = false;
 	}
 };
 }

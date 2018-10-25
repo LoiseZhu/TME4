@@ -41,15 +41,12 @@ public :
 		while( empty() && isBlocking){
 			cv_cons.wait(l);
 		}
-
 		if( empty() ){
 			return  nullptr;
 		}
-
 		if(full()){
 			cv_prod.notify_all();
 		}
-
 		auto ret = tab[begin];
 		tab[begin] = nullptr;
 		sz--;
@@ -61,16 +58,17 @@ public :
 		while( full() ){
 			cv_prod.wait(l);
 		}
-
 		if(empty()){
 			cv_cons.notify_all();
 		}
-
 		tab[(begin + sz)%allocsize] = elt;
 		sz++;
 	}
-	void setNotBlocking(){
-		isBlocking = false;
+	void setBlockingPop(bool block){
+		isBlocking = block;
+	}
+	bool isBlocked(){
+		return isBlocking;
 	}
 	~Queue() {
 		for (size_t i = 0; i < sz ; i++) {
