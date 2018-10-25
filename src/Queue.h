@@ -14,7 +14,7 @@
 
 namespace pr{
 template <typename T>
-class Queue {
+class Queue{
 	T ** tab;
 	const size_t allocsize;
 	size_t begin;
@@ -32,6 +32,12 @@ public :
 	Queue (size_t maxsize) :allocsize(maxsize),begin(0),sz(0) {
 		tab = new T* [maxsize];
 		memset(tab, 0, maxsize * sizeof(T*));
+	}
+	Queue (const Queue &queue):allocsize(queue.allocsize){
+		tab = queue.tab;
+		begin = queue.begin;
+		sz = queue.sz;
+		memset(tab, 0, allocsize * sizeof(T*));
 	}
 	size_t size() const {
 		return sz;
@@ -77,6 +83,10 @@ public :
 		}
 		delete[] tab;
 	}
+	Queue& operator=(Queue<T> newQueue){
+		return *this;
+	}
+
 };
 }
 

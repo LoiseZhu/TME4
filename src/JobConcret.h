@@ -9,6 +9,7 @@
 #define JOBCONCRET_H_
 
 #include "Job.h"
+#include "Barrier.h"
 #include <iostream>
 #include <thread>
 
@@ -16,9 +17,10 @@ namespace pr{
 class JobConcret:public Job{
 	int * result;
 	int argument;
+	Barrier barrier;
 
 public:
-	JobConcret(int arg):argument(arg), result(){
+	JobConcret(int arg, Barrier b): result(),argument(arg), barrier(b){
 	}
 	~JobConcret(){
 	}
@@ -27,6 +29,7 @@ public:
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		*result = argument%256;
 		std::cout<<"fini sur arg = " << argument << " res vaut "<<(*result)<< std::endl;
+		barrier.done();
 	}
 };
 }

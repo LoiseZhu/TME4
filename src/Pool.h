@@ -17,24 +17,28 @@
 #include "Job.h"
 
 namespace pr{
-
 class Pool{
-	pr::Queue<Job> jobQueue;
+	Queue<JobConcret> jobQueue;
 	std::vector<std::thread> threadTab;
 	bool endMain=true;
 
 public:
-	Pool(size_t taille){
-		jobQueue = pr::Queue(taille);
-		threadTab = std::vector();
+	Pool(size_t taille):jobQueue(Queue<JobConcret>(taille)){
+		threadTab = std::vector<std::thread>();
 	}
 	~Pool(){
+		jobQueue.~Queue();
+	}
+	Pool(const Pool &pool):jobQueue(Queue<JobConcret>(pool.jobQueue.size())){
+		threadTab = pool.threadTab;
 	}
 	void start(int NBTHREAD){
 		threadTab.reserve(NBTHREAD);
+
+		int i = 0;
 		while(endMain){
 			for(int i=0; i<NBTHREAD; i++){
-				threadTab[i] = std::thread(jobQueue.pop()->run());
+				threadTab.push_back(std::thread(jobQueue.pop()->run()));
 			}
 		}
 		jobQueue.setBlockingPop(false);
@@ -42,11 +46,14 @@ public:
 			threadTab[i].join();
 		}
 	}
-	void submit(Job *job){
+	void submit(JobConcret *job){
 		jobQueue.push(job);
 	}
 	void stop(){
 		endMain = false;
+	}
+	Pool& operator=(Pool newPool){
+		return *this;
 	}
 };
 }
