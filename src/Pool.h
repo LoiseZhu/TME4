@@ -17,40 +17,40 @@
 #include "Job.h"
 
 namespace pr{
+
+void threadBody(Queue<Job> *queue){
+	while(true){
+		Job* j = queue->pop();
+		if(j == nullptr)
+			return;
+		j->run();
+		delete j;
+	}
+}
+
 class Pool{
-	Queue<JobConcret> jobQueue;
+	Queue<Job> jobQueue;
 	std::vector<std::thread> threadTab;
-	bool endMain=true;
 
 public:
-	Pool(size_t taille):jobQueue(Queue<JobConcret>(taille)){
-		threadTab = std::vector<std::thread>();
+	Pool(size_t taille):jobQueue(taille){
 	}
 	~Pool(){
 		jobQueue.~Queue();
 	}
-	Pool(const Pool &pool):jobQueue(Queue<JobConcret>(pool.jobQueue.size())){
-		threadTab = pool.threadTab;
-	}
 	void start(int NBTHREAD){
-		threadTab.reserve(NBTHREAD);
-
-		int i = 0;
-		while(endMain){
-			for(int i=0; i<NBTHREAD; i++){
-				threadTab.push_back(std::thread(jobQueue.pop()->run()));
-			}
+		for(int i=0; i<NBTHREAD; i++){
+			threadTab.emplace_back(std::thread(threadBody,&jobQueue));
 		}
+	}
+	void stop(){
 		jobQueue.setBlockingPop(false);
-		for(int i=0; i<NBTHREAD;i++){
+		for(size_t i = 0; i < threadTab.size(); i++){
 			threadTab[i].join();
 		}
 	}
 	void submit(JobConcret *job){
 		jobQueue.push(job);
-	}
-	void stop(){
-		endMain = false;
 	}
 	Pool& operator=(Pool newPool){
 		return *this;

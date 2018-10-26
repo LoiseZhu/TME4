@@ -17,11 +17,10 @@ namespace pr{
 class JobConcret:public Job{
 	int * result;
 	int argument;
-	Barrier barrier;
+	Barrier* b;
 
 public:
-	JobConcret(int arg, Barrier b): result(),argument(arg), barrier(b){
-	}
+	JobConcret(int arg, int* res,Barrier* barr): result(res),argument(arg),b(barr){}
 	~JobConcret(){
 	}
 	void run(){
@@ -29,7 +28,7 @@ public:
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 		*result = argument%256;
 		std::cout<<"fini sur arg = " << argument << " res vaut "<<(*result)<< std::endl;
-		barrier.done();
+		b->done();
 	}
 };
 }

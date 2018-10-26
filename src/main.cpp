@@ -13,7 +13,7 @@ using namespace pr;
 // NB : en francais pour le cours, preferez coder en english toujours.
 // pas d'accents pour eviter les soucis d'encodage
 
-int main () {
+int main_t () {
 	// on pose une graine basee sur la date
 	default_random_engine re(std::chrono::system_clock::now().time_since_epoch().count());
 	// definir la Scene : resolution de l'image

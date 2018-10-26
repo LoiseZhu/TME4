@@ -9,25 +9,30 @@
 #define BARRIER_H_
 
 #include <iostream>
+#include <mutex>
+#include <condition_variable>
 
 #include "Pool.h"
 
 
 class Barrier{
 	size_t N;
-	size_t count;
-	pr::Pool pool;
+	std::mutex m;
+	std::condition_variable cv;
 
 public:
-	Barrier(size_t nbWork, pr::Pool p):N(nbWork),count(0), pool(p){}
+	Barrier(size_t nbWork):N(nbWork){}
 	~Barrier(){}
 	void done(){
-		count++;
-		if(count == N)
-			waitFor();
+		std::unique_lock<std::mutex> l(m);
+		N--;
+		if(N==0)
+			cv.notify_all();
 	}
 	void waitFor(){
-		pool.stop();
+		std::unique_lock<std::mutex> l(m);
+		while(N != 0)
+			cv.wait(l);
 	}
 };
 

@@ -8,11 +8,12 @@
 #ifndef QUEUE_H_
 #define QUEUE_H_
 
-#include <string> //size_t
+#include <cstring> //size_t
 #include <mutex>
+#include <stdio.h>
 #include <condition_variable>
 
-namespace pr{
+
 template <typename T>
 class Queue{
 	T ** tab;
@@ -33,12 +34,7 @@ public :
 		tab = new T* [maxsize];
 		memset(tab, 0, maxsize * sizeof(T*));
 	}
-	Queue (const Queue &queue):allocsize(queue.allocsize){
-		tab = queue.tab;
-		begin = queue.begin;
-		sz = queue.sz;
-		memset(tab, 0, allocsize * sizeof(T*));
-	}
+
 	size_t size() const {
 		return sz;
 	}
@@ -72,6 +68,7 @@ public :
 	}
 	void setBlockingPop(bool block){
 		isBlocking = block;
+		cv_prod.notify_all();
 	}
 	bool isBlocked(){
 		return isBlocking;
@@ -88,6 +85,6 @@ public :
 	}
 
 };
-}
+
 
 #endif /* QUEUE_H_ */
